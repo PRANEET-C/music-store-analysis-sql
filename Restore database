@@ -1,0 +1,7 @@
+What's Schema?
+relation between different tables in a database is schema.
+
+Importing database
+first downlaod the databse file. Open postgreSQL---->database-->create-->Give a name to it. Save it. Now if we go to the schema of the newly created database, we will see no tables.
+To import the tables of the database:
+Click on the database-->Restore--->on filepath browse the downloaded folder of the database folder (music_database.sql)-->open-->Restore.
