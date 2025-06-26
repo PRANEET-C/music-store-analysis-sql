@@ -1,4 +1,12 @@
 1. Write query to return the email, first name, last name, & Genre of all Rock Music listeners. Return your list ordered alphabetically by email starting with A.
+select distinct c.email,c.first_name,c.last_name from customer c
+join invoice i on i.customer_id=c.customer_id
+join invoice_line il on il.invoice_id=i.invoice_id
+join track t on t.track_id=il.track_id
+join genre g on g.genre_id=t.genre_id where g.name='Rock'
+order by c.email
+------OR-------
+
 2. Let's invite the artists who have written the most rock music in our dataset. Write a
 query that returns the Artist name and total track count of the top 10 rock bands
 3. Return all the track names that have a song length longer than the average song length.
