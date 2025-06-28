@@ -7,8 +7,46 @@ join genre g on g.genre_id=t.genre_id where g.name='Rock'
 order by c.email
 ------OR-------
 
-2. Let's invite the artists who have written the most rock music in our dataset. Write a
-query that returns the Artist name and total track count of the top 10 rock bands
-3. Return all the track names that have a song length longer than the average song length.
-Return the Name and Milliseconds for each track. Order by the song length with the
-longest songs listed first
+2. Let's invite the artists who have written the most rock music in our dataset. Write a query that returns the Artist name 
+and total track count of the top 10 rock bands
+SELECT a.name AS artist_name, COUNT(*) AS rock_track_count
+FROM artist a
+JOIN album am ON a.artist_id = am.artist_id
+JOIN track t ON t.album_id = am.album_id
+JOIN genre g ON t.genre_id = g.genre_id
+WHERE g.name = 'Rock'
+GROUP BY a.name
+ORDER BY rock_track_count DESC;
+-------OR--------
+SELECT a.name AS artist_name, COUNT(*) AS rock_track_count
+FROM artist a
+JOIN album am ON a.artist_id = am.artist_id
+JOIN 
+(select t.album_id from track t
+JOIN genre g ON t.genre_id = g.genre_id
+WHERE g.name = 'Rock') as rock_album_id on am.album_id=rock_album_id.album_id
+GROUP BY a.name
+ORDER BY rock_track_count DESC;
+-------OR--------
+with rock_track as
+	(select album_id from track t
+	join genre g on t.genre_id=g.genre_id
+	where g.name like 'Rock'),
+	rock_album as
+	(select artist_id from album am 
+	join rock_track rt on am.album_id=rt.album_id)
+select a.name,count(*) as rock_track_count
+from artist a
+join rock_album ra on a.artist_id=ra.artist_id
+group by a.name
+order by rock_track_count desc
+
+3. Return all the track names that have a song length longer than the average song length.Return the Name and Milliseconds for each track.
+Order by the song length with the longest songs listed first
+
+with avg_len as (
+	select avg(milliseconds) as time from track
+)
+select name,milliseconds from track
+where milliseconds> (select(time) from avg_len)
+order by milliseconds desc;
