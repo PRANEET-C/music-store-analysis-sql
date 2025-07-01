@@ -1,9 +1,45 @@
-1. Find how much amount spent by each customer on artists? Write a query to return
-customer name, artist name and total spent
-2. We want to find out the most popular music Genre for each country. We determine the
-most popular genre as the genre with the highest amount of purchases. Write a query
-that returns each country along with the top Genre. For countries where the maximum
-number of purchases is shared return all Genres
+1. Find how much amount spent by each customer on artists? Write a query to return customer name, artist name and total spent
+
+select c.first_name,c.last_name,a.name, sum(il.unit_price*il.quantity) as spent
+from customer c join invoice i on c.customer_id=i.customer_id
+join invoice_line il on i.invoice_id=il.invoice_id
+join track t on t.track_id=il.track_id
+join album am on t.album_id=am.album_id
+join artist a on am.artist_id=a.artist_id
+group by 1,2,3
+order by 4 desc
+
+2. We want to find out the most popular music Genre for each country. We determine the most popular genre as the genre with the highest amount of purchases.
+Write a querythat returns each country along with the top Genre. For countries where the maximum number of purchases is shared return all Genres.
+
+WITH spent_genre AS (
+    SELECT 
+        g.name AS genre_name,
+        i.billing_country,
+        SUM(il.unit_price * il.quantity) AS total_spent
+    FROM invoice i
+    JOIN invoice_line il ON i.invoice_id = il.invoice_id
+    JOIN track t ON il.track_id = t.track_id
+    JOIN genre g ON t.genre_id = g.genre_id
+    GROUP BY g.name, i.billing_country
+),
+max_spent_per_country AS (
+    SELECT 
+        billing_country,
+        MAX(total_spent) AS max_spent
+    FROM spent_genre
+    GROUP BY billing_country
+)
+SELECT 
+    sg.billing_country,
+    sg.genre_name,
+    sg.total_spent
+FROM spent_genre sg
+JOIN max_spent_per_country mspc 
+    ON sg.billing_country = mspc.billing_country
+    AND sg.total_spent = mspc.max_spent
+ORDER BY sg.billing_country;
+
 3. Write a query that determines the customer that has spent the most on music for each
 country. Write a query that returns the country along with the top customer and how
 much they spent. For countries where the top amount spent is shared, provide all
