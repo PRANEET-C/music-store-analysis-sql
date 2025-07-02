@@ -40,7 +40,23 @@ JOIN max_spent_per_country mspc
     AND sg.total_spent = mspc.max_spent
 ORDER BY sg.billing_country;
 
-3. Write a query that determines the customer that has spent the most on music for each
-country. Write a query that returns the country along with the top customer and how
-much they spent. For countries where the top amount spent is shared, provide all
-customers who spent this amount
+3. Write a query that determines the customer that has spent the most on music for each country. Write a query that returns the country 
+along with the top customer and how much they spent. For countries where the top amount spent is shared, provide all customers who spent this amount
+
+with spent_per_country as(
+	select i.customer_id as customerid,i.billing_country as country,sum(il.unit_price*il.quantity) as spent
+	from invoice i join invoice_line il
+	on i.invoice_id=il.invoice_id
+	group by i.customer_id,i.billing_country
+),
+max_per_country as(
+	select country,max(spent) as max_spent
+	from spent_per_country
+	group by country
+)
+
+select c.first_name,c.last_name,spc.country,spc.spent from spent_per_country spc
+join max_per_country mpc
+on spc.country=mpc.country and spc.spent=mpc.max_spent
+join customer c on c.customer_id=spc.customerid
+order by spc.country
